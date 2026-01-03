@@ -1,0 +1,44 @@
+# 使用Spring Boot官方镜像
+FROM gradle:8.5-jdk21-alpine AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制构建文件
+COPY build.gradle settings.gradle ./
+COPY gradle/ gradle/
+COPY gradlew ./
+
+# 给 gradlew 添加执行权限
+RUN chmod +x gradlew
+
+# 下载依赖（利用Docker缓存层）
+RUN ./gradlew dependencies --no-daemon
+
+# 复制源代码
+COPY src/ src/
+
+# 构建应用
+RUN ./gradlew build -x test --no-daemon
+
+# 生产阶段 - 使用Spring Boot官方镜像
+FROM openjdk:21-jdk-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 从构建阶段复制jar文件
+COPY --from=builder /app/build/libs/ ./libs/
+RUN find ./libs/ -name "*.jar" -not -name "*-plain.jar" | head -1 | xargs -I {} cp {} app.jar
+
+# 启动应用 - 迁移服务执行完迁移后会自动退出
+CMD ["java", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "-Dspring.profiles.active=test", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=70.0", \
+    "-XX:+UseG1GC", \
+    "-Dspring.jmx.enabled=false", \
+    "-jar", \
+    "app.jar"]
+
