@@ -1,0 +1,28 @@
+steps:
+  # 1️⃣ 构建镜像
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -t
+      - asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run/kyuyokeisan-db-migration:$COMMIT_SHA
+      - .
+
+  # 2️⃣ 推送镜像
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run/kyuyokeisan-db-migration:$COMMIT_SHA
+
+  # 3️⃣ 更新 Cloud Run Job（关键）
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - jobs
+      - update
+      - kyuyokeisan-db-migration
+      - --image=asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run/kyuyokeisan-db-migration:$COMMIT_SHA
+      - --region=asia-northeast1
+
+images:
+  - asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run/kyuyokeisan-db-migration:$COMMIT_SHA
