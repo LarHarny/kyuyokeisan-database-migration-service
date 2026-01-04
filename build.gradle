@@ -6,7 +6,7 @@ plugins {
 
 group = 'jp.asatex.niuyuping'
 version = '0.0.1'
-description = 'Kyuyokeisan Database Migration Service'
+description = 'Database Migration Service'
 
 java {
 	toolchain {

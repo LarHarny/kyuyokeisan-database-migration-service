@@ -1,4 +1,4 @@
-# 数据库迁移服务 (kyuyokeisan-database-migration-service)
+# 数据库迁移服务
 
 这是一个独立的数据库迁移服务，使用 Flyway 管理所有后端服务的数据库迁移脚本。
 
@@ -42,7 +42,7 @@ export DB_PASSWORD=local
 
 ```bash
 # 构建镜像
-docker build -f Dockerfile.prod -t kyuyokeisan-database-migration-service:latest .
+docker build -f Dockerfile.prod -t database-migration-service:latest .
 
 # 运行容器
 docker run --rm \
@@ -50,7 +50,7 @@ docker run --rm \
   -e DB_USER=db_user \
   -e DB_PASSWORD=local \
   -e SPRING_PROFILES_ACTIVE=prod \
-  kyuyokeisan-database-migration-service:latest
+  database-migration-service:latest
 ```
 
 ### Cloud Run 部署
